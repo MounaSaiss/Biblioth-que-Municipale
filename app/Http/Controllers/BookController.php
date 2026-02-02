@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Book;
 use Illuminate\Http\Request;
 
+use function Ramsey\Uuid\v1;
+
 class BookController extends Controller
 {
     public function index() {
@@ -46,8 +48,16 @@ class BookController extends Controller
 
         return redirect()->route('books.index');
     }
-    public function destroy(Book $book) {
-        $book->delete();
-        return redirect()->route('books.index');
+    public function destroy($id) {
+        $book = Book::findorFail($id);
+        if(!$book) {
+            return response()->json([
+                'message' => 'Book not found'
+                ], 404);
+        }
+        else {
+            $book->delete();
+            return view('book.index', ['books' => Book::all()]);
+    }
     }
 }
